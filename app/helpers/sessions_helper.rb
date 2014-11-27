@@ -10,12 +10,11 @@ module SessionsHelper
     cookies.permanent.signed[:user_id] = user.id
     cookies.permanent[:remember_token] = user.remember_token
   end
-#return current user 
+#return current user
   def current_user
     if (user_id = session[:user_id])
       @current_user ||= User.where(id: user_id).take
     elsif (user_id = cookies.signed[:user_id])
-      raise
       user = User.where(id: user_id).take
       if user && user.authenticated?(cookies[:remember_token])
         log_in user
@@ -42,6 +41,13 @@ module SessionsHelper
     cookies.delete(:user_id)
     cookies.delete(:remember_token)
   end
+#redirect for stored location
+ def redirect_back_or(default)
+   redirect_to(session[:forwarding_url] || default)
+ end
 
-
+  #stroe the location trying to access
+  def store_location
+    session[:forwarding_url] = request.url if request.get?
+  end
 end
