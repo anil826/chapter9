@@ -15,8 +15,7 @@ class SessionsController < ApplicationController
   end
 
   def destroy
-    session.delete(:user_id)
-    reset_session
+   log_out if logged_in?
     redirect_to root_path
   end
 end

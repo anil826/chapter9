@@ -10,11 +10,12 @@ module SessionsHelper
     cookies.permanent.signed[:user_id] = user.id
     cookies.permanent[:remember_token] = user.remember_token
   end
-
+#return current user 
   def current_user
     if (user_id = session[:user_id])
       @current_user ||= User.where(id: user_id).take
     elsif (user_id = cookies.signed[:user_id])
+      raise
       user = User.where(id: user_id).take
       if user && user.authenticated?(cookies[:remember_token])
         log_in user
@@ -23,13 +24,16 @@ module SessionsHelper
     end
   end
 
-# it's return current user
-  def current_user
-    @current_user ||= User.where(id: session[:user_id]).take
-  end
 # if current user not nil
   def logged_in?
     !current_user.nil?
+  end
+
+  #log out the current user
+  def log_out
+    forget(current_user)
+    session.delete(:user_id)
+    @current_user=nil
   end
 
   #forget a persistent user
@@ -38,5 +42,6 @@ module SessionsHelper
     cookies.delete(:user_id)
     cookies.delete(:remember_token)
   end
+
 
 end
